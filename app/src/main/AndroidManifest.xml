@@ -28,10 +28,12 @@
         android:name="android.hardware.vr.headtracking"
         android:required="false" />
 
-    <!-- Network: needed in v0.2+ for the Wi-Fi stream. Harmless in v0.1. -->
+    <!-- Network: Wi-Fi stream (v0.2). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- mDNS discovery needs a multicast lock (see MainActivity). -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
     <application
         android:allowBackup="true"

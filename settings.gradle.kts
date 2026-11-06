@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Quest Phone Monitor"
 include(":app")
+include(":sender")

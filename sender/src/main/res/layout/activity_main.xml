@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0B0F14"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Share this phone's screen with your Quest 3"
+        android:textColor="#9CA3AF"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Not streaming"
+        android:textColor="#D1D5DB"
+        android:textSize="16sp" />
+
+    <!-- The stream URL, for debugging from a browser on the same network.
+         The Quest app finds the stream via mDNS and needs no URL. -->
+    <TextView
+        android:id="@+id/url_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="#60A5FA"
+        android:textIsSelectable="true"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/toggle_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Start sharing" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="How it works: tap Start sharing and allow screen capture. The phone streams its screen over your Wi-Fi (same network as the Quest, no internet needed) and the Quest app finds it automatically.\n\nThe stream keeps running if you switch apps or turn the screen off. Stop it here or from the notification."
+        android:textColor="#6B7280"
+        android:textSize="14sp" />
+
+</LinearLayout>

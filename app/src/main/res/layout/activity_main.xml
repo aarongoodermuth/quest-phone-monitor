@@ -30,14 +30,35 @@
         android:textColor="#D1D5DB"
         android:textSize="15sp" />
 
-    <!-- Phone-shaped placeholder. In v0.2 this becomes the live stream view. -->
-    <View
-        android:id="@+id/phone_screen_placeholder"
+    <!-- Connection state: searching / connected to <device> / disconnected. -->
+    <TextView
+        android:id="@+id/connection_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Searching for your phone…"
+        android:textColor="#60A5FA"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <!-- Phone-shaped view. The ImageView shows the live stream when
+         connected; otherwise the container is the v0.1 placeholder and
+         tapping it cycles the test colors. -->
+    <FrameLayout
+        android:id="@+id/phone_screen_container"
         android:layout_width="240dp"
         android:layout_height="480dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:background="#111827" />
+        android:layout_marginTop="12dp"
+        android:background="#111827">
+
+        <ImageView
+            android:id="@+id/phone_screen_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/status_text"
@@ -46,17 +67,9 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Phone screen will appear here.\nStreaming not built yet — the button below just proves the panel responds to input."
+        android:text="No phone connected yet.\nStart sharing on your phone — the Quest finds it automatically."
         android:textColor="#D1D5DB"
         android:textSize="15sp" />
-
-    <Button
-        android:id="@+id/test_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:text="Tap to test input" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -64,7 +77,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Next: Wi-Fi stream (same network) • then wired USB (no Wi-Fi needed)"
+        android:text="Next: wired USB mode (no Wi-Fi needed) • then PC remote desktop"
         android:textColor="#6B7280"
         android:textSize="13sp" />
 
