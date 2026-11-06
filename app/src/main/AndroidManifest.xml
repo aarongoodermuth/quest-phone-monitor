@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Quest Phone Monitor — v0.1 Hello World (2D panel app on Horizon OS)
+
+  Horizon OS is Android (AOSP). A 2D panel app runs as a floating,
+  OS-resizable window — which is exactly what a phone monitor needs first.
+  minSdk 29 / targetSdk 34 per Meta's 2D-panel requirements for new apps.
+  ARM64 only (Quest 3 is Snapdragon XR2 Gen 2).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:metavr="http://schemas.meta.com/metavr-sdk"
+    xmlns:horizonos="http://schemas.horizonos/sdk">
+
+    <uses-sdk
+        android:minSdkVersion="29"
+        android:targetSdkVersion="34" />
+
+    <!-- Horizon OS SDK targeting (levels are separate from Android's). -->
+    <metavr:uses-metavr-sdk
+        metavr:minSdkVersion="69"
+        metavr:targetSdkVersion="207" />
+    <horizonos:uses-horizonos-sdk
+        horizonos:minSdkVersion="69"
+        horizonos:targetSdkVersion="207" />
+
+    <!-- VR head-tracking is optional: this is a 2D panel, not immersive VR. -->
+    <uses-feature
+        android:name="android.hardware.vr.headtracking"
+        android:required="false" />
+
+    <!-- Network: needed in v0.2+ for the Wi-Fi stream. Harmless in v0.1. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.QuestPhoneMonitor">
+
+        <meta-data
+            android:name="com.oculus.supportedDevices"
+            android:value="quest2|questpro|quest3|quest3s" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden"
+            android:screenOrientation="unspecified">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
