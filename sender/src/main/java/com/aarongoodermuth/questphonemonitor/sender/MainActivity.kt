@@ -72,10 +72,20 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        // Two-arg registerReceiver (no RECEIVER_NOT_EXPORTED flag — that
-        // needs API 33+, and our minSdk is 29). The broadcast is already
-        // app-private: the service sends it with setPackage(packageName).
-        registerReceiver(statusReceiver, IntentFilter(ScreenCaptureService.ACTION_STATUS))
+        // Android 13+ (API 33) requires an explicit export flag for
+        // dynamically-registered receivers; targeting API 34, the old
+        // two-arg call throws SecurityException on launch. The broadcast
+        // is app-private (the service sends it with
+        // setPackage(packageName)), so NOT_EXPORTED is correct. The
+        // three-arg overload and the flag constant both need API 33, and
+        // our minSdk is 29, so guard by SDK version.
+        val filter = IntentFilter(ScreenCaptureService.ACTION_STATUS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(statusReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("DEPRECATION")
+            registerReceiver(statusReceiver, filter)
+        }
         refreshUiFromServiceState()
     }
 
