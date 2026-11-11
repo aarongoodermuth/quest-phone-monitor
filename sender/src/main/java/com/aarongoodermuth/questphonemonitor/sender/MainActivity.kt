@@ -9,6 +9,7 @@ import android.graphics.Point
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
@@ -34,6 +35,7 @@ import android.widget.TextView
 class MainActivity : Activity() {
 
     companion object {
+        private const val TAG = "QPM-Sender"
         private const val REQUEST_CAPTURE = 1
     }
 
@@ -55,6 +57,9 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Install first: if anything below crashes, the trace lands in
+        // Downloads/quest-phone-monitor-crash.txt instead of vanishing.
+        CrashHandler.install(this)
         setContentView(R.layout.activity_main)
 
         statusText = findViewById(R.id.status_text)
@@ -79,12 +84,19 @@ class MainActivity : Activity() {
         // setPackage(packageName)), so NOT_EXPORTED is correct. The
         // three-arg overload and the flag constant both need API 33, and
         // our minSdk is 29, so guard by SDK version.
-        val filter = IntentFilter(ScreenCaptureService.ACTION_STATUS)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(statusReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("DEPRECATION")
-            registerReceiver(statusReceiver, filter)
+        // Wrapped so a registration failure shows on screen instead of
+        // killing the app — the crash handler still records the trace.
+        try {
+            val filter = IntentFilter(ScreenCaptureService.ACTION_STATUS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(statusReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                @Suppress("DEPRECATION")
+                registerReceiver(statusReceiver, filter)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Receiver registration failed", e)
+            statusText?.text = "Startup error:\n${e.javaClass.simpleName}: ${e.message}"
         }
         refreshUiFromServiceState()
     }
