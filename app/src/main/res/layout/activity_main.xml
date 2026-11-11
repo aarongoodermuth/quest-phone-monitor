@@ -71,13 +71,42 @@
         android:textColor="#D1D5DB"
         android:textSize="15sp" />
 
+    <!-- v0.3 control buttons: Back / Home / Recents on the phone. -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/control_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back" />
+
+        <Button
+            android:id="@+id/control_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:text="Home" />
+
+        <Button
+            android:id="@+id/control_recents"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:text="Recents" />
+    </LinearLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Next: wired USB mode (no Wi-Fi needed) • then PC remote desktop"
+        android:text="Tap the screen to control your phone • Next: wired USB mode (no Wi-Fi needed)"
         android:textColor="#6B7280"
         android:textSize="13sp" />
 

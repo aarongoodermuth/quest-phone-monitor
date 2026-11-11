@@ -30,5 +30,19 @@ object QpmProtocol {
 
     /** Info page endpoint — plain-text status, handy for debugging
      *  from a browser on the same network. */
-    const val INFO_PATH = "/"
+    const val INFO_PATH = "/info"
+
+    /** Interactive viewer page (HTML): the stream plus click/drag
+     *  control from a browser. This is the URL the sender shows. */
+    const val VIEW_PATH = "/"
+
+    /** Control endpoint. `POST /control` with a JSON body:
+     *  - `{"type":"tap","x":<px>,"y":<px>}` — tap at phone-screen pixels
+     *    (the captured frame's pixel space).
+     *  - `{"type":"swipe","x1":..,"y1":..,"x2":..,"y2":..,"durationMs":..}`
+     *  - `{"type":"key","key":"back"|"home"|"recents"}`
+     *  Responds `{"ok":true}` or `{"ok":false,"error":"..."}`.
+     *  No auth: same trust level as the stream itself — anyone on the
+     *  local Wi-Fi can already watch the screen. */
+    const val CONTROL_PATH = "/control"
 }

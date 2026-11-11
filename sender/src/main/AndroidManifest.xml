@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Quest Phone Monitor — sender (phone side), v0.2
+  Quest Phone Monitor — sender (phone side), v0.3
 
   Captures this phone's screen with MediaProjection and serves it as an
   MJPEG stream on the local Wi-Fi, advertised over mDNS so the Quest
@@ -11,6 +11,11 @@
   must be started before MediaProjectionManager.getMediaProjection() is
   called, which is why MainActivity hands the capture-permission result
   to the service instead of capturing itself.
+
+  v0.3 adds control: the Quest (or a browser on the viewer page) sends
+  taps/swipes/keys to POST /control, and QpmAccessibilityService
+  performs them with dispatchGesture — no root, no ADB. The user enables
+  that service once in Settings → Accessibility.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -47,5 +52,20 @@
             android:name=".ScreenCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+
+        <!-- Input injection for v0.3 control: the Quest sends taps/swipes
+             to POST /control and this service performs them. Enabled once
+             by the user in Settings → Accessibility. -->
+        <service
+            android:name=".QpmAccessibilityService"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
     </application>
 </manifest>

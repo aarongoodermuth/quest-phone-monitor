@@ -50,6 +50,23 @@
         android:text="Start sharing" />
 
     <TextView
+        android:id="@+id/control_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Control off — turn on the Quest Phone Monitor service in Accessibility settings to let the Quest tap this phone."
+        android:textColor="#D1D5DB"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/enable_control_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Enable control"
+        android:visibility="gone" />
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"

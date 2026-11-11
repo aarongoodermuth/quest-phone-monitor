@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Quest Phone Monitor — Sender</string>
+    <string name="accessibility_service_description">Lets Quest Phone Monitor tap, swipe, and press Back, Home, or Recents on this phone when you control it from your Quest headset or a browser. It only acts when you send a control command; it never reads the screen, your notifications, or your data.</string>
 </resources>

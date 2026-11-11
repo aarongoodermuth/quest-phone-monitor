@@ -60,6 +60,10 @@ class ScreenCaptureService : Service() {
             private set
         @Volatile var streamUrl: String? = null
             private set
+        /** Viewer page URL (the interactive page with the stream and
+         *  click control) — what the Activity shows. */
+        @Volatile var viewUrl: String? = null
+            private set
         @Volatile var statusText: String = "Not streaming"
             private set
     }
@@ -199,6 +203,7 @@ class ScreenCaptureService : Service() {
 
         val ip = NetworkUtils.localIpv4Address()
         streamUrl = "http://$ip:${QpmProtocol.PORT}${QpmProtocol.STREAM_PATH}"
+        viewUrl = "http://$ip:${QpmProtocol.PORT}${QpmProtocol.VIEW_PATH}"
         statusText = "Streaming — open the Quest app to view"
         isRunning = true
         updateNotification()
@@ -230,6 +235,7 @@ class ScreenCaptureService : Service() {
         mediaProjection = null
         isRunning = false
         streamUrl = null
+        viewUrl = null
         statusText = "Not streaming"
         try {
             stopForeground(STOP_FOREGROUND_REMOVE)
@@ -331,7 +337,7 @@ class ScreenCaptureService : Service() {
         val intent = Intent(ACTION_STATUS).apply {
             setPackage(packageName)
             putExtra(EXTRA_STATUS, statusText)
-            putExtra(EXTRA_URL, streamUrl)
+            putExtra(EXTRA_URL, viewUrl)
             putExtra(EXTRA_RUNNING, isRunning)
         }
         sendBroadcast(intent)

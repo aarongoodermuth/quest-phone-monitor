@@ -11,18 +11,26 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 
 /**
- * v0.2 — Quest receiver.
+ * v0.3 — Quest receiver.
  *
  * Discovers the phone sender over mDNS ([QpmProtocol.SERVICE_TYPE]),
  * connects to its MJPEG stream, and plays it live in the phone-shaped
  * view. When no stream is connected, the view is the v0.1 placeholder
  * and tapping it still cycles the test colors — the tap-to-test fallback.
+ *
+ * v0.3 adds control: tapping / dragging the live stream sends the
+ * gesture to the phone (POST /control), which performs it through its
+ * accessibility service. The phone must have that service enabled —
+ * until then taps do nothing on the phone (the sender app says so).
+ * Back / Home / Recents buttons send the matching global action.
  *
  * Connection states (shown in [connectionStatus]):
  * - "Searching…" — discovery running, no sender found yet.
@@ -70,6 +78,12 @@ class MainActivity : Activity() {
     private var lastServiceName: String? = null
     private var reconnectAttempts = 0
 
+    // Touch state for control (v0.3): down point/time, to tell a tap
+    // (quick, barely moved) from a swipe.
+    private var touchDownX = 0f
+    private var touchDownY = 0f
+    private var touchDownTime = 0L
+
     private val mainHandler = Handler(Looper.getMainLooper())
     private val reconnectRunnable = Runnable {
         val host = lastHost
@@ -89,7 +103,7 @@ class MainActivity : Activity() {
         deviceInfo.text = listOf(
             "Device: ${Build.MANUFACTURER} ${Build.MODEL}",
             "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
-            "Quest Phone Monitor v0.2 — live phone stream",
+            "Quest Phone Monitor v0.3 — live phone stream with control",
             "Panel resizes with Horizon OS: grab a corner."
         ).joinToString("\n")
 
@@ -110,6 +124,47 @@ class MainActivity : Activity() {
                 }
             }
         }
+
+        // v0.3 control: touch the live stream to tap / swipe the phone.
+        phoneImage?.setOnTouchListener { _, event ->
+            if (player == null) return@setOnTouchListener false
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    touchDownX = event.x
+                    touchDownY = event.y
+                    touchDownTime = System.currentTimeMillis()
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    val dt = System.currentTimeMillis() - touchDownTime
+                    val dx = event.x - touchDownX
+                    val dy = event.y - touchDownY
+                    val start = viewToPhone(touchDownX, touchDownY)
+                    val end = viewToPhone(event.x, event.y)
+                    if (start != null && end != null) {
+                        val host = lastHost
+                        if (host != null) {
+                            if (dt < 300 && kotlin.math.hypot(dx, dy) < 24f) {
+                                ControlClient.tap(host, lastPort, start.first, start.second)
+                            } else {
+                                ControlClient.swipe(
+                                    host, lastPort,
+                                    start.first, start.second, end.first, end.second,
+                                    dt.coerceIn(100, 1_000),
+                                )
+                            }
+                        }
+                    }
+                    true
+                }
+                MotionEvent.ACTION_CANCEL -> true
+                else -> true
+            }
+        }
+
+        findViewById<Button>(R.id.control_back)?.setOnClickListener { sendKey("back") }
+        findViewById<Button>(R.id.control_home)?.setOnClickListener { sendKey("home") }
+        findViewById<Button>(R.id.control_recents)?.setOnClickListener { sendKey("recents") }
 
         startDiscovery()
     }
@@ -240,8 +295,38 @@ class MainActivity : Activity() {
         )
         player = streamPlayer
         connectionStatus?.text = "Connected to $serviceName ($host)"
-        statusText?.text = "Live — your phone's screen.\nTap the panel corner to resize it."
+        statusText?.text = "Live — your phone's screen.\nTap the screen to control it."
         streamPlayer.start()
+    }
+
+    // ---- Control (v0.3) -----------------------------------------------------
+
+    private fun sendKey(key: String) {
+        val host = lastHost ?: return
+        if (player == null) return
+        ControlClient.key(host, lastPort, key)
+    }
+
+    /**
+     * Maps a touch point in the ImageView's coordinates to phone-screen
+     * pixels. The ImageView is fitCenter, so the bitmap is letterboxed:
+     * scale by the smaller fit factor and subtract the centering offset.
+     * Returns null when the point falls outside the displayed image or
+     * no frame has arrived yet.
+     */
+    private fun viewToPhone(x: Float, y: Float): Pair<Float, Float>? {
+        val bmp = currentBitmap ?: return null
+        val view = phoneImage ?: return null
+        val viewWidth = view.width.toFloat()
+        val viewHeight = view.height.toFloat()
+        if (viewWidth <= 0 || viewHeight <= 0) return null
+        val scale = minOf(viewWidth / bmp.width, viewHeight / bmp.height)
+        val offsetX = (viewWidth - bmp.width * scale) / 2f
+        val offsetY = (viewHeight - bmp.height * scale) / 2f
+        val phoneX = (x - offsetX) / scale
+        val phoneY = (y - offsetY) / scale
+        if (phoneX < 0 || phoneY < 0 || phoneX > bmp.width || phoneY > bmp.height) return null
+        return phoneX to phoneY
     }
 
     private fun stopPlayer() {

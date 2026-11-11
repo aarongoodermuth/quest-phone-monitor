@@ -11,8 +11,8 @@ android {
         applicationId = "com.aarongoodermuth.questphonemonitor"
         minSdk = 29
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
 
         // Quest 3 (Snapdragon XR2 Gen 2) is ARM64 only. No x86 libs.
         ndk {

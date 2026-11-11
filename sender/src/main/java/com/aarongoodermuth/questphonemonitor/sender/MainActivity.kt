@@ -9,7 +9,9 @@ import android.graphics.Point
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
@@ -25,6 +27,12 @@ import android.widget.TextView
  *
  * The stream URL is shown for debugging (any browser on the same network
  * can open it); the Quest app normally needs no URL at all.
+ *
+ * v0.3 adds control: the Quest (or a browser on the viewer page) sends
+ * taps/swipes/keys to POST /control and [QpmAccessibilityService]
+ * performs them. Control needs that service enabled once in
+ * Settings → Accessibility; this Activity shows whether it is on and
+ * offers to open the settings page when it is off.
  *
  * Note: this uses the classic [startActivityForResult] / [onActivityResult]
  * for the capture permission instead of the androidx Activity Result API,
@@ -42,6 +50,8 @@ class MainActivity : Activity() {
     private var statusText: TextView? = null
     private var urlText: TextView? = null
     private var toggleButton: Button? = null
+    private var controlText: TextView? = null
+    private var enableControlButton: Button? = null
 
     private val statusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -65,6 +75,8 @@ class MainActivity : Activity() {
         statusText = findViewById(R.id.status_text)
         urlText = findViewById(R.id.url_text)
         toggleButton = findViewById(R.id.toggle_button)
+        controlText = findViewById(R.id.control_text)
+        enableControlButton = findViewById(R.id.enable_control_button)
 
         toggleButton?.setOnClickListener {
             if (ScreenCaptureService.isRunning) {
@@ -72,6 +84,12 @@ class MainActivity : Activity() {
             } else {
                 requestCapturePermission()
             }
+        }
+
+        enableControlButton?.setOnClickListener {
+            // The user flips the switch here; there is no programmatic
+            // way to enable an accessibility service.
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
     }
 
@@ -99,6 +117,21 @@ class MainActivity : Activity() {
             statusText?.text = "Startup error:\n${e.javaClass.simpleName}: ${e.message}"
         }
         refreshUiFromServiceState()
+        refreshControlStatus()
+    }
+
+    /** Shows whether the Quest can control this phone yet. Checked on
+     *  every resume because the user may have just flipped the switch
+     *  in Accessibility settings. */
+    private fun refreshControlStatus() {
+        if (QpmAccessibilityService.isEnabled(this)) {
+            controlText?.text = "Control ready — the Quest can tap and swipe this phone."
+            enableControlButton?.visibility = View.GONE
+        } else {
+            controlText?.text = "Control off — turn on the Quest Phone Monitor service " +
+                "in Accessibility settings to let the Quest tap this phone."
+            enableControlButton?.visibility = View.VISIBLE
+        }
     }
 
     override fun onPause() {
@@ -126,7 +159,7 @@ class MainActivity : Activity() {
     private fun refreshUiFromServiceState() {
         val running = ScreenCaptureService.isRunning
         statusText?.text = ScreenCaptureService.statusText
-        urlText?.text = ScreenCaptureService.streamUrl ?: ""
+        urlText?.text = ScreenCaptureService.viewUrl ?: ""
         toggleButton?.text = if (running) "Stop sharing" else "Start sharing"
     }
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Accessibility service config for the Quest Phone Monitor sender.
+     Gesture-only: it performs taps/swipes/Back/Home sent from the Quest
+     or the browser viewer. canPerformGestures is what makes
+     dispatchGesture() work; eventTypes is all-mask because the service
+     ignores events entirely (see QpmAccessibilityService). -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canPerformGestures="true"
+    android:canRetrieveWindowContent="false"
+    android:description="@string/accessibility_service_description"
+    android:settingsActivity="com.aarongoodermuth.questphonemonitor.sender.MainActivity" />
