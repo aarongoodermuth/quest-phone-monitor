@@ -89,6 +89,20 @@ class ScreenCaptureService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        // Promote to foreground FIRST, before any validation below.
+        // Android kills the whole app (ForegroundServiceDidNotStartInTime)
+        // if a service started with startForegroundService() does not call
+        // startForeground() within a few seconds — and every check below
+        // can bail out with stopSelf(). The crash on Nov 11 was exactly
+        // this: a validation failure stopped the service before it ever
+        // promoted. Promoting here makes every exit path safe, including
+        // a stop command arriving when the service is not yet promoted.
+        createNotificationChannel()
+        startForeground(
+            NOTIFICATION_ID,
+            buildNotification(null),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION,
+        )
         return when (intent.getStringExtra(EXTRA_COMMAND)) {
             COMMAND_STOP -> {
                 stopCapture()
@@ -155,13 +169,8 @@ class ScreenCaptureService : Service() {
         )
         capturer = screenCapturer
 
-        createNotificationChannel()
-        startForeground(
-            NOTIFICATION_ID,
-            buildNotification(null),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION,
-        )
-
+        // Already promoted in onStartCommand (see there) — do not
+        // promote again here.
         if (!mjpegServer.start()) {
             // Port 8080 is taken (another sender running?). Unwind without
             // ever starting capture: the projection is released, the

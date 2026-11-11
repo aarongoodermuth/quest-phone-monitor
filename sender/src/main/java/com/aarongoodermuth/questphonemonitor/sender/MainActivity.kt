@@ -160,7 +160,7 @@ class MainActivity : Activity() {
 
     /** Real display size in pixels (not the activity window size). */
     private fun displaySize(): Pair<Int, Int> {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val size = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
             val bounds = windowManager.maximumWindowMetrics.bounds
             bounds.width() to bounds.height()
@@ -172,5 +172,13 @@ class MainActivity : Activity() {
             display.getRealSize(size)
             size.x to size.y
         }
+        // A zero/negative size (seen in odd windowing modes such as DeX)
+        // would make the service reject the start request outright; fall
+        // back to the screen size instead of passing it through.
+        if (size.first <= 0 || size.second <= 0) {
+            val dm = resources.displayMetrics
+            return dm.widthPixels to dm.heightPixels
+        }
+        return size
     }
 }

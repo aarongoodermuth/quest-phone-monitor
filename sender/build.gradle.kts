@@ -11,8 +11,8 @@ android {
         applicationId = "com.aarongoodermuth.questphonemonitor.sender"
         minSdk = 29
         targetSdk = 34
-        versionCode = 3
-        versionName = "0.2.2"
+        versionCode = 4
+        versionName = "0.2.3"
     }
 
     buildTypes {
